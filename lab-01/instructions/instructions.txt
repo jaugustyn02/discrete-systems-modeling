@@ -1,0 +1,2 @@
+Golomb ruler: https://en.wikipedia.org/wiki/Golomb_ruler
+Optimal golomb ruler: https://www.reddit.com/r/math/comments/10aji6t/distributednet_has_verified_the_optimal_28mark/
