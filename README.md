@@ -4,3 +4,5 @@
 ## Simulation / Cellular automata (CA)
 - lab02 - Conway's Game of Life
 - lab03 - Sound Wave
+## Simulation / Nagel–Schreckenberg model (NaSch)
+- lab04 - Freeway Traffic part 1
