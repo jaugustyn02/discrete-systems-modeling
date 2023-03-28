@@ -6,3 +6,4 @@
 - lab03 - Sound Wave
 ## Simulation / Nagel–Schreckenberg model (NaSch)
 - lab04 - Freeway Traffic part 1
+- lab05 - Freeway Traffic part 2
