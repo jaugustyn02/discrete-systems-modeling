@@ -7,7 +7,7 @@ public class Point {
 	public final static int maxVelocity = 5;
 	final static double slowDownChance = 0.30;
 	final static double appearChance = 0.05;
-	final static double disappearChance = 0.05;
+	final static double disappearChance = 0.1;
 
 
 	public Point() {
@@ -29,10 +29,7 @@ public class Point {
 	}
 
 	public void randomAppearance(){
-		if(isCar && Math.random() <= disappearChance){
-			clear();
-		}
-		else if (!isCar && Math.random() <= appearChance) {
+		if (!isCar && Math.random() <= appearChance) {
 			isCar = true;
 		}
 	}
@@ -60,11 +57,13 @@ public class Point {
 		}
 	}
 
-	public void moveCar(Point newPoint){
+	public void moveCar(Point newPoint, boolean exceededPeriodicBoundaries){
 		if (isCar && !hasMoved && velocity > 0) {
-			newPoint.isCar = true;
-			newPoint.velocity = velocity;
-			newPoint.hasMoved = true;
+			if (!exceededPeriodicBoundaries || Math.random() > disappearChance) {
+				newPoint.isCar = true;
+				newPoint.velocity = velocity;
+				newPoint.hasMoved = true;
+			}
 			clear();
 		}
 	}

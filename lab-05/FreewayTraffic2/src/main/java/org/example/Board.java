@@ -13,8 +13,10 @@ import javax.swing.event.MouseInputListener;
 public class Board extends JComponent implements MouseInputListener, ComponentListener {
 	private static final long serialVersionUID = 1L;
 	private Point[][] points;
-	private int size = 10;
+//	private int size = 10;
+	private int size = 16;
 	public int editType=0;
+
 
 	public Board(int length, int height) {
 		initialize(length, height);
@@ -26,47 +28,82 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	}
 
 	public void iteration() {
-		int y = 0;
-		Point tmp;
+		Point point;
 
-		copyRowsOneDown();
-
-		for (int x = 0; x < points.length; ++x) {
-			tmp = points[x][y];
-			tmp.accelerate();
-			tmp.slowDown(getDistanceToNextCar(tmp, x, y));
-			tmp.randomSlowDown();
-			tmp.hasMoved = false;
+		for(int lane = 0; lane < 3; lane++) {
+			for (int x = 0; x < points.length; ++x) {
+				points[x][lane].hasChangedLine = false;
+			}
 		}
 
-		for (int x = 0; x < points.length; ++x){
-			tmp = points[x][y];
-			tmp.moveCar(points[(x + tmp.getVelocity()) % points.length][y], x + tmp.getVelocity() >= points.length);
+		for(int lane = 0; lane < 3; lane++) {
+
+			for( int x = 0; x < points.length; ++x){
+				point = points[x][lane];
+				if (!point.isCar() && !point.hasChangedLine)
+					continue;
+				boolean T1 = getDistanceToNextCar(point, x, lane) < Point.l_gap;
+				if(T1){
+					if (lane > 0) {
+						boolean T2 = getDistanceToNextCarOnSideLine(x, lane-1) > Point.l_lead;
+						boolean T3 = getDistanceToPreviousCarOnSideLine(x, lane-1) > Point.l_back;
+						if (T2 && T3) {
+							point.changeLane(points[x][lane-1]);
+							continue;
+						}
+					}
+					if (lane < 2) {
+						boolean T2 = getDistanceToNextCarOnSideLine(x, lane+1) > Point.l_lead;
+						boolean T3 = getDistanceToPreviousCarOnSideLine(x, lane+1) > Point.l_back;
+						if (T2 && T3) {
+							point.changeLane(points[x][lane+1]);
+							point.hasChangedLine = true;
+						}
+					}
+				}
+			}
+
+			for (int x = 0; x < points.length; ++x) {
+				point = points[x][lane];
+				point.accelerate();
+				point.slowDown(getDistanceToNextCar(point, x, lane));
+				point.randomSlowDown();
+				point.hasMoved = false;
+			}
+
+			for (int x = 0; x < points.length; ++x) {
+				point = points[x][lane];
+				point.moveCar(points[(x + point.getVelocity()) % points.length][lane], x + point.getVelocity() >= points.length);
+			}
+
+			points[0][lane].randomAppearance();
 		}
-
-		points[0][0].randomAppearance();
-
 		this.repaint();
 	}
 
 	private int getDistanceToNextCar(Point tmp, int x, int y){
 		if(!tmp.isCar()) return 0;
-		for(int i = 1; i <= Point.maxVelocity; i++){
+		for(int i = 1; i <= Math.max(Point.maxVelocity, Point.l_gap); i++){
 			if(points[(x+i)%points.length][y].isCar())
 				return i-1;
 		}
-		return Point.maxVelocity;
+		return Math.max(Point.maxVelocity, Point.l_gap);
 	}
 
-	private void copyRowsOneDown(){
-		for(int y = points[0].length - 1; y > 0; y--){
-			for(int x = 0; x < points.length; x++){
-				if(points[x][y-1].isCar())
-					points[x][y].clicked();
-				else
-					points[x][y].clear();
-			}
+	private int getDistanceToNextCarOnSideLine(int x, int line){
+		for(int i = 0; i <= Point.l_lead+1; i++){
+			if(points[(x+i)%points.length][line].isCar())
+				return i-1;
 		}
+		return Point.l_lead+1;
+	}
+
+	private int getDistanceToPreviousCarOnSideLine(int x, int y){
+		for(int i = 0; i <= Point.l_back+1; i++){
+			if(points[Math.floorMod(x-i, points.length)][y].isCar())
+				return i-1;
+		}
+		return Point.l_back+1;
 	}
 
 	public void clear() {
@@ -81,8 +118,9 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 		points = new Point[length][height];
 
 		for (int x = 0; x < points.length; ++x)
-			for (int y = 0; y < points[x].length; ++y)
-				points[x][y] = new Point();
+			for (int lane = 0; lane < points[x].length; ++lane) {
+				points[x][lane] = new Point(lane);
+			}
 	}
 
 	protected void paintComponent(Graphics g) {
@@ -101,11 +139,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 		int lastX = this.getWidth() - insets.right;
 		int lastY = this.getHeight() - insets.bottom;
 
-		int x = firstX;
-		while (x < lastX) {
-			g.drawLine(x, firstY, x, lastY);
-			x += gridSpace;
-		}
 
 		int y = firstY;
 		while (y < lastY) {
@@ -113,13 +146,25 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			y += gridSpace;
 		}
 
+		g.setColor(new Color(0, 0, 0, 0.8f));
+		int x = firstX;
+		while (x < lastX) {
+			g.drawLine(x, firstY, x, lastY);
+			x += gridSpace;
+		}
+
 		for (x = 0; x < points.length; ++x) {
 			for (y = 0; y < points[x].length; ++y) {
 				float a = 1.0F;
 				if(points[x][y].isCar())
-					g.setColor(new Color(0, 0, 0));
+					switch (points[x][y].currentColorID) {
+						case 0 -> g.setColor(new Color(255, 0, 0));
+						case 1 -> g.setColor(new Color(0, 255, 0));
+						default -> g.setColor(new Color(0, 0, 255));
+					}
 				else
-					g.setColor(new Color(a, a, a, 0.5f));
+//					g.setColor(new Color(0, 0, 255));
+					g.setColor(new Color(0, 0, 0, 0.8f));
 				g.fillRect((x * size) + 1, (y * size) + 1, (size - 1), (size - 1));
 			}
 		}
@@ -128,7 +173,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	public void mouseClicked(MouseEvent e) {
 		int x = e.getX() / size;
 		int y = e.getY() / size;
-		if ((x < points.length) && (x >= 0) && y == 0) {
+		if ((x < points.length) && (x >= 0) && y>=0 && y < 3) {
 			if(editType==0){
 				points[x][y].clicked();
 			}
@@ -148,7 +193,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	public void mouseDragged(MouseEvent e) {
 		int x = e.getX() / size;
 		int y = e.getY() / size;
-		if ((x < points.length) && (x >= 0) && y == 0) {
+		if ((x < points.length) && (x >= 0) && y>= 0 && y < 3) {
 			if(editType==0){
 				points[x][y].clicked();
 			}
