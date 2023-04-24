@@ -64,7 +64,7 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			boolean T1 = getDistanceToPreviousCar(point, x, lane) < Point.l_gap;
 			if(T1){
 
-				if (lane > 4) {
+				if (lane > 5) {
 					boolean T2 = getDistanceToPreviousCarOnSideLine(x, lane-1, Point.l_lead) > Point.l_lead;
 					boolean T3 = getDistanceToNextCarOnSideLine(x, lane-1, Point.l_back) > Point.l_back;
 					if (T2 && T3) {
