@@ -1,4 +1,4 @@
-# Discrete Systems Modeling - labolatories
+# Discrete Systems Modeling - laboratories
 ## Discrete computation with constraints
 - lab01 - Golomb Ruler&nbsp;&nbsp;&nbsp;&nbsp;*(Introductory class)*
 ## Simulation / Cellular automata (CA)
