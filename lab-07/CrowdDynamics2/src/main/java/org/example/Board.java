@@ -22,6 +22,8 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	private static final int SFMAX = 100000;
 	private static final int DFMAX = 100000;
 	private static final int WALLRF = 30;
+
+	// Different rate of exit overcrowding
 	private static final int EXIT2RATIO = 3;
 	private static final int EXIT4RATIO = 5;
 
@@ -40,19 +42,21 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			for (int y = 1; y < points[x].length - 1; ++y)
 				points[x][y].blocked = false;
 
-
-		Collections.shuffle(Point.pedestrians);	// Random order of pedestrians movement
+		// Random order of pedestrians movement
+		Collections.shuffle(Point.pedestrians);
 		for (Point pedestrian: List.copyOf(Point.pedestrians)){
 			pedestrian.move();
 		}
 
-		if (iteration_counter % 25 == 0){ // Pedestrians exit decision process
+		// Pedestrians exit decision process
+		if (iteration_counter % 25 == 0){
 			calcDynamicField();
 		}
 		iteration_counter++;
 		this.repaint();
 	}
 
+	// Calculating a field that indicates the exit's congestion level
 	public void calcDynamicField() {
 		int min_exit_counter = iteration_counter+100;
 
@@ -99,11 +103,12 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 				points[x][y].clear();
 			}
 		calculateField();
+		calcDynamicField();
 		this.repaint();
 	}
 
 	private void initialize(int length, int height) {
-		boolean MooreNH = true;
+		boolean MooreNH = true;	// Using a Moore Neighbourhood
 
 		points = new Point[length][height];
 
@@ -174,7 +179,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			}
 			toCheckField.remove(currPoint);
 		}
-
 	}
 
 	protected void paintComponent(Graphics g) {
@@ -209,7 +213,8 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			for (y = 1; y < points[x].length-1; ++y) {
 				if(points[x][y].type==0){
 					float staticField = points[x][y].staticField;
-					float intensity = staticField/1000;
+					float dynamicField = points[x][y].dynamicField;
+					float intensity = (staticField + dynamicField) / 2000;
 					if (intensity > 1.0) {
 						intensity = 1.0f;
 					}
@@ -237,7 +242,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 		int x = e.getX() / size;
 		int y = e.getY() / size;
 		if ((x < points.length) && (x > 0) && (y < points[x].length) && (y > 0)) {
-//			System.out.println("Static filed at ("+x+", "+y+"): "+points[x][y].staticField);
 			if(editType==3){
 				points[x][y].makePedestrian();
 				points[x][y].type = editType;

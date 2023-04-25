@@ -7,3 +7,6 @@
 ## Simulation / Nagel–Schreckenberg model (NaSch)
 - lab04 - Freeway Traffic part 1
 - lab05 - Freeway Traffic part 2&nbsp;&nbsp;&nbsp;&nbsp;*(extended NaSch model)*
+## Simulation / Multi-Agent system based on CA
+- lab06 - Crowd Dynamics part 1
+- lab07 - Crowd Dynamics part 2

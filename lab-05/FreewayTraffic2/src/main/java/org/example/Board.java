@@ -14,10 +14,10 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	private static final long serialVersionUID = 1L;
 	private Point[][] points;
 //	private int size = 10;
-	private int size = 16;
+	private final static int size = 16;
 	public int editType=0;
-	private final int LANES = 3;
-	private final int GAP = 2; // black lanes gap height
+	private final static int LANES = 3;
+	private final static int GAP = 2; // black lanes gap height
 
 
 	public Board(int length, int height) {
@@ -30,7 +30,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 	}
 
 	public void iteration() {
-		Point point;
 
 		// clear hasChangedLine status
 		for(int lane = 0; lane < LANES; lane++) {
@@ -44,13 +43,11 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 			handleForwardLaneChanges(lane);
 			handleBackwardLaneChanges(lane+GAP+LANES);
 
-
 			handleDriveForward(lane);
 			handleDriveBackwards(lane+GAP+LANES);
 
-
-
 			points[0][lane].randomAppearance();
+			points[points.length-1][lane+GAP+LANES].randomAppearance();
 		}
 		this.repaint();
 	}
@@ -63,12 +60,10 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 				continue;
 			boolean T1 = getDistanceToPreviousCar(point, x, lane) < Point.l_gap;
 			if(T1){
-
 				if (lane > 5) {
 					boolean T2 = getDistanceToPreviousCarOnSideLine(x, lane-1, Point.l_lead) > Point.l_lead;
 					boolean T3 = getDistanceToNextCarOnSideLine(x, lane-1, Point.l_back) > Point.l_back;
 					if (T2 && T3) {
-						System.out.println("Chce zmieniać");
 						point.changeLane(points[x][lane-1]);
 						point.hasChangedLine = true;
 						continue;
@@ -84,7 +79,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 				}
 			}
 		}
-
 	}
 
 	private void handleForwardLaneChanges(int lane){
@@ -113,7 +107,6 @@ public class Board extends JComponent implements MouseInputListener, ComponentLi
 				}
 			}
 		}
-
 	}
 
 	private void handleDriveForward( int lane){
