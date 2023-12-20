@@ -1,4 +1,3 @@
-Jan Augustyn - CROWD DYNAMICS 2
 Implemented improvements:
 1. Static field improvement - Different values and relaxation, diagonal movement is "longer" than horizontal and vertical.
 2. Walls have repulsion force (force strength easily customizable)
